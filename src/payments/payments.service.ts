@@ -7,8 +7,21 @@ import { PaymentSessionDto } from './dto/payment-session.dto';
 export class PaymentsService {
     private readonly stripe = new Stripe(envs.stripeSecret)
 
-
    async createPaymentSession(paymentSessionDto:PaymentSessionDto) {
+
+    const {currency,items} = paymentSessionDto;
+
+    const line_items = items.map(item => {
+        return {
+            price_data: {
+                currency: currency,
+                product_data: {
+                    name: item.name
+                },
+                unit_amount: Math.round(item.price * 100)
+            },quantity: item.quantity
+         }
+    })
  
     const session = await this.stripe.checkout.sessions.create({
         //colocar aqui el Id de la orden
@@ -17,15 +30,7 @@ export class PaymentsService {
             
         }
      },
-     line_items: [{
-        price_data: {
-            currency: 'usd',
-            product_data: {
-                name: 'Calcetines Gamer'
-            },
-            unit_amount: 2000 //20 dollares// 2000 /100 =20.00 esto es en dollares stripe usa dos decimales
-        },quantity: 2
-     }],
+     line_items: line_items,
      mode: 'payment',
      success_url: 'http://localhost:3000/success',
      cancel_url: 'http://localhost:3000/cancel'
