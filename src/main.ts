@@ -5,7 +5,9 @@ import { Logger, ValidationPipe } from '@nestjs/common';
 
 async function bootstrap() {
   const logger = new Logger('payments-ms main');
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(AppModule,
+    // aqui se configura los middlewares de nest
+    {rawBody: true});
   
   app.useGlobalPipes(
     new ValidationPipe({
